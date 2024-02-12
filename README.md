@@ -1,3 +1,3 @@
 # com.unity.addressables.android
 
-This package allows the developer to pack Addressable Groups into Android Asset Packs and this way to take full advantage of Asset Packs based dynamic delivery. Also when Texture Compression Targeting support is turned on for the project this package uses the same settings to pack different texture compression variants to Android Asset Packs.
+This is a stripped down version of the Unity Addressables for Android package that is avialable in unity 2023, but backported to work in unity 2022. This was done for a specific project and if you adopt this you may need to edit the package to work for you. Just stick this whole repo in your [ProjectRoot]/Packages folder and add it as an entry in the package manifest file. 
