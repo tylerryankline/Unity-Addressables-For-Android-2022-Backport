@@ -1,3 +1,4 @@
+#if UNITY_ANDROID
 using System;
 using System.IO;
 using System.Linq;
@@ -169,3 +170,4 @@ public class PlayAssetDeliveryPostGenerateGradleAndroidProject : IPostGenerateGr
         return Path.Combine(CustomAssetPackUtility.kAddressablesAssetPackName, $"{CustomAssetPackUtility.CustomAssetPacksAssetsPath}");
     }
 }
+#endif

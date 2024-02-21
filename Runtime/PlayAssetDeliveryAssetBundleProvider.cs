@@ -17,7 +17,7 @@ namespace UnityEngine.AddressableAssets.Android
     [DisplayName("Play Asset Delivery Provider")]
     public class PlayAssetDeliveryAssetBundleProvider : AssetBundleProvider, IUpdateReceiver
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID// && !UNITY_EDITOR
         Dictionary<string, HashSet<ProvideHandle>> m_ProviderInterfaces = new Dictionary<string, HashSet<ProvideHandle>>();
         List<string> m_AssetPackQueue = new List<string>();
 
@@ -65,7 +65,11 @@ namespace UnityEngine.AddressableAssets.Android
         public override void Release(IResourceLocation location, object asset)
         {
             base.Release(location, asset);
-            m_ProviderInterfaces.Clear();
+            //NOTE: Ryan - The original package has this code but We stopped clearing this dictionary here because if you call
+            //release on anything that uses this asset bundle provider, then this dictionary gets cleared. That didn't seem
+            //correct and was causing us issues when we load an asset with auto release handle = true and then try to get stuff out
+            //PAD Fast Follow Packs quickly after.
+            //m_ProviderInterfaces.Clear();
         }
 
         internal override IOperationCacheKey CreateCacheKeyForLocation(ResourceManager rm, IResourceLocation location, Type desiredType)
@@ -89,6 +93,7 @@ namespace UnityEngine.AddressableAssets.Android
                     m_AssetPackQueue.Add(assetPackName);
                 }
                 m_ProviderInterfaces[assetPackName].Add(providerInterface);
+                Debug.Log($"[PAD] adding {assetPackName} provider handle: {m_ProviderInterfaces[assetPackName]}");
             }
             catch (InvalidOperationException ioe)
             {
@@ -118,7 +123,15 @@ namespace UnityEngine.AddressableAssets.Android
                     break;
                 case AndroidAssetPackStatus.Completed:
                     {
+                        Debug.Log($"Asset Pack Name was: {info.name}");
                         var assetPackPath = AndroidAssetPacks.GetAssetPackPath(info.name);
+                        Debug.Log($"Asset Pack Path was: {assetPackPath}");
+
+                        foreach (var kvp in m_ProviderInterfaces)
+                        {
+                            Debug.Log($"[PAD] m_ProviderInterfaces: {kvp.Key} => {kvp.Value}");
+                        }
+                        
                         if (!string.IsNullOrEmpty(assetPackPath))
                         {
                             // Asset pack was located on device. Proceed with loading the bundle.
@@ -172,7 +185,7 @@ namespace UnityEngine.AddressableAssets.Android
                         pi.Complete(this, false, new RemoteProviderException(message));
                     }
                 }
-                m_ProviderInterfaces.Clear();
+                //m_ProviderInterfaces.Clear();
             }
         }
 #else

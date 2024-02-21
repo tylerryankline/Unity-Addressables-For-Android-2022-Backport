@@ -4,12 +4,40 @@ using System.IO;
 using System.Linq;
 using UnityEditor.Build;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.Android;
 
 namespace UnityEditor.AddressableAssets.Android
 {
+    public class BuildPreprocessor : IPreprocessBuildWithReport
+    {
+        public int callbackOrder => 0;
+
+        public void OnPreprocessBuild(BuildReport report)
+        {
+            //================ Clean Up Gradle Project
+            var gradleProjPath = Path.Combine(Application.dataPath, "../Library/Bee/Android");
+            if (Directory.Exists(gradleProjPath))
+            {
+                var di = new DirectoryInfo(gradleProjPath);
+
+                foreach (FileInfo file in di.GetFiles())
+                {
+                    file.Delete();
+                }
+
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+        }
+    }
+    
     /// <summary>
     /// When building for Android with asset packs support ensures that active player data builder is set to build script which builds for Play Asset Delivery.
     ///
